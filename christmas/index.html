@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jonah's Christmas Countdown</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap">
+<style>
+  :root {
+    --sky:   #0d1b3e;
+    --snow:  #e8f4fb;
+    --gold:  #f7c844;
+    --red:   #e63946;
+    --green: #2d7a3c;
+    --green2:#3fa855;
+    --fg:    #ffffff;
+    --dim:   rgba(255,255,255,0.75);
+    --card:  rgba(255,255,255,0.09);
+    color-scheme: dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+  html, body {
+    min-height: 100%;
+    background: var(--sky);
+    color: var(--fg);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  #stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .flake {
+    position: fixed;
+    top: -20px;
+    color: var(--snow);
+    font-size: 1rem;
+    opacity: 0.7;
+    animation: fall linear infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding-block: 36px;
+    padding-left:  max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .title-block { text-align: center; line-height: 1.1; }
+  .tree { font-size: clamp(2.8rem, 8vw, 4.5rem); display: block; animation: sway 4s ease-in-out infinite; }
+  @keyframes sway { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.8rem, 6vw, 3.2rem);
+    color: var(--gold);
+    text-shadow: 0 0 24px rgba(247,200,68,0.6);
+    text-wrap: balance;
+  }
+  .sub {
+    font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+    color: var(--dim);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .tiles {
+    display: flex;
+    gap: clamp(10px, 3vw, 20px);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tile {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px;
+    padding: clamp(12px, 3vw, 20px) clamp(14px, 3.5vw, 26px);
+    text-align: center;
+    min-width: 72px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .tile-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.4rem, 8vw, 4.2rem);
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 0 16px rgba(247,200,68,0.5);
+    font-variant-numeric: tabular-nums;
+    min-width: 2ch;
+    display: inline-block;
+  }
+  .tile-label {
+    font-size: clamp(0.65rem, 1.8vw, 0.85rem);
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 4px;
+  }
+
+  .sep {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--red);
+    align-self: center;
+    animation: blink 1s step-end infinite;
+    padding-bottom: 20px;
+  }
+  @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0.2 } }
+
+  .message {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--green2);
+    font-weight: 900;
+    text-align: center;
+    text-wrap: balance;
+    max-width: 340px;
+  }
+
+  /* ── Wish List Card ── */
+  .wishlist-card {
+    background: rgba(255,255,255,0.07);
+    border: 2px solid var(--gold);
+    border-radius: 18px;
+    padding: 18px 22px 14px;
+    max-width: 360px;
+    width: 100%;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 28px rgba(0,0,0,0.35), 0 0 0 1px rgba(247,200,68,0.15);
+  }
+
+  .wishlist-card h2 {
+    font-family: 'Fredoka One', cursive;
+    color: var(--gold);
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    text-align: center;
+    margin-bottom: 14px;
+    text-shadow: 0 0 14px rgba(247,200,68,0.4);
+  }
+
+  .wish-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .wish-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+    font-weight: 700;
+  }
+
+  .wish-item .bullet {
+    color: var(--gold);
+    font-size: 1.1em;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .wish-item .item-check {
+    width: 20px;
+    height: 20px;
+    display: none;
+    accent-color: var(--green2);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .wish-item .item-text { flex: 1; transition: color 0.2s, text-decoration 0.2s; }
+
+  .wish-item.got .item-text {
+    text-decoration: line-through;
+    color: var(--dim);
+  }
+
+  /* Purchased badge (family, no gate) */
+  .purch-area {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .purch-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    color: var(--dim);
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .purch-btn:hover { border-color: var(--green2); color: var(--green2); }
+
+  .purch-badge {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    background: rgba(45,122,60,0.35);
+    border: 1px solid var(--green2);
+    border-radius: 20px;
+    padding: 2px 9px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--green2);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .purch-badge:hover { background: rgba(215,28,28,0.25); border-color: var(--red); color: var(--red); }
+  .purch-badge:hover::after { content: ' (undo?)'; font-weight: 400; }
+
+  .wish-item.purchased .purch-btn  { display: none; }
+  .wish-item.purchased .purch-badge { display: flex; }
+  .wish-item.purchased .item-text   { text-decoration: line-through; color: var(--dim); }
+
+  /* Identifier popup */
+  .id-popup {
+    display: none;
+    position: absolute;
+    background: #162040;
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 10px 12px;
+    gap: 0;
+    flex-direction: column;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    z-index: 10;
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 200px;
+  }
+  .id-popup.open { display: flex; }
+
+  .id-popup .popup-hint {
+    font-size: 0.7rem;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 7px;
+    letter-spacing: 0.03em;
+  }
+
+  .id-popup .popup-sub {
+    font-size: 0.65rem;
+    color: var(--dim);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .id-popup .popup-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .id-popup input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    color: var(--fg);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    padding: 4px 9px;
+    width: 120px;
+    outline: none;
+    flex: 1;
+  }
+  .id-popup input:focus { border-color: var(--gold); }
+  .id-popup input::placeholder { color: rgba(255,255,255,0.3); font-style: italic; }
+
+  .id-popup button {
+    background: var(--green);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.82rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .wish-item { position: relative; }
+
+  /* Parent toggle area */
+  .parent-area {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .lock-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.72rem;
+    padding: 4px 11px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.06em;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .lock-btn:hover { color: var(--gold); border-color: var(--gold); }
+
+  .code-wrap {
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .code-wrap.open { display: flex; }
+
+  .code-input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    color: var(--fg);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    padding: 5px 10px;
+    width: 128px;
+    outline: none;
+  }
+  .code-input:focus { border-color: var(--gold); }
+  .code-input::placeholder { color: rgba(255,255,255,0.3); font-style: italic; }
+
+  .code-go {
+    background: var(--green);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .code-go:hover { background: var(--green2); }
+
+  .code-err {
+    color: var(--red);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: none;
+    align-self: flex-end;
+  }
+
+  /* Parent mode active state */
+  .wishlist-card.parent-mode .item-check { display: inline-block; }
+  .wishlist-card.parent-mode .bullet    { display: none; }
+  .wishlist-card.parent-mode .lock-btn  { color: var(--green2); border-color: var(--green2); }
+
+  .xmas-banner {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 8vw, 4rem);
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(247,200,68,0.8);
+    text-align: center;
+    text-wrap: balance;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<script>
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = Array.from({length: 120}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.3,
+      a: Math.random(),
+      speed: Math.random() * 0.4 + 0.1
+    }));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  let t = 0;
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    t += 0.01;
+    stars.forEach(s => {
+      const twinkle = 0.5 + 0.5 * Math.sin(t * s.speed * 6 + s.a * 20);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,220,${0.3 + 0.7 * twinkle})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  const flakes = ['❄','❅','❆','✦','✧'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('span');
+    el.className = 'flake';
+    el.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (Math.random() * 14 + 8) + 'px';
+    el.style.animationDuration = (Math.random() * 8 + 6) + 's';
+    el.style.animationDelay = (Math.random() * 10) + 's';
+    document.body.appendChild(el);
+  }
+</script>
+
+<div class="wrap">
+  <div class="title-block">
+    <span class="tree">🎄</span>
+    <h1>Jonah's Christmas Countdown</h1>
+    <p class="sub">Days until Christmas Day 🎁</p>
+  </div>
+
+  <div id="display"></div>
+  <div id="message" class="message"></div>
+
+  <!-- Wish List -->
+  <div class="wishlist-card" id="wishlistCard">
+    <h2>🎁 Jonah's Wish List</h2>
+    <ul class="wish-items" id="wishItems">
+      <li class="wish-item" data-i="0">
+        <span class="bullet">★</span>
+        <input class="item-check" type="checkbox" aria-label="Got it">
+        <span class="item-text">Roblox Gift Card</span>
+        <div class="purch-area">
+          <button class="purch-btn" title="Mark as purchased">🛍 Purchased?</button>
+          <span class="purch-badge" title="Click to undo">✓ <span class="who"></span></span>
+          <div class="id-popup">
+            <div class="popup-hint">🤫 Pick a secret name</div>
+            <div class="popup-sub">Use something Jonah won't recognize — like a nickname or code!</div>
+            <div class="popup-row">
+              <input type="text" placeholder="e.g. Elf #3, NP-1…" maxlength="20" autocomplete="off">
+              <button>✓</button>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="wish-item" data-i="1">
+        <span class="bullet">★</span>
+        <input class="item-check" type="checkbox" aria-label="Got it">
+        <span class="item-text">Super Nintendo World trip (Epic Universe, Orlando)</span>
+        <div class="purch-area">
+          <button class="purch-btn" title="Mark as purchased">🛍 Purchased?</button>
+          <span class="purch-badge" title="Click to undo">✓ <span class="who"></span></span>
+          <div class="id-popup">
+            <div class="popup-hint">🤫 Pick a secret name</div>
+            <div class="popup-sub">Use something Jonah won't recognize — like a nickname or code!</div>
+            <div class="popup-row">
+              <input type="text" placeholder="e.g. Elf #3, NP-1…" maxlength="20" autocomplete="off">
+              <button>✓</button>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="parent-area">
+      <div class="code-wrap" id="codeWrap">
+        <input class="code-input" id="codeInput" type="password" placeholder="secret code…" autocomplete="off">
+        <button class="code-go" id="codeGo">Go</button>
+      </div>
+      <div class="code-err" id="codeErr">❌ Nope! Try again.</div>
+      <button class="lock-btn" id="lockBtn">🔒 For Parents</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Countdown ── */
+  function getTimeUntilXmas() {
+    const now = new Date();
+    const yr = now.getFullYear();
+    let xmas = new Date(yr, 11, 25);
+    if (now > xmas) xmas = new Date(yr + 1, 11, 25);
+    const diff = xmas - now;
+    if (diff <= 0) return null;
+    const days    = Math.floor(diff / (1000*60*60*24));
+    const hours   = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((diff % (1000*60)) / 1000);
+    return { days, hours, minutes, seconds };
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  const msgs = [
+    "🎁 Getting SO close!",
+    "🌟 Santa is watching!",
+    "🚂 Choo choo to Christmas!",
+    "🎅 Letters are ready!",
+    "⭐ Almost there, Jonah!",
+    "🛷 Reindeer are warming up!",
+  ];
+  function render() {
+    const t = getTimeUntilXmas();
+    const display = document.getElementById('display');
+    const msgEl   = document.getElementById('message');
+    if (!t) {
+      display.innerHTML = `<div class="xmas-banner">🎄 It's Christmas! 🎄</div>`;
+      msgEl.textContent = '🎁 Merry Christmas, Jonah!!! 🚂';
+      return;
+    }
+    display.innerHTML = `
+      <div class="tiles">
+        <div class="tile"><div class="tile-num">${t.days}</div><div class="tile-label">Day${t.days!==1?'s':''}</div></div>
+        <span class="sep">:</span>
+        <div class="tile"><div class="tile-num">${pad(t.hours)}</div><div class="tile-label">Hours</div></div>
+        <span class="sep">:</span>
+        <div class="tile"><div class="tile-num">${pad(t.minutes)}</div><div class="tile-label">Min</div></div>
+        <span class="sep">:</span>
+        <div class="tile"><div class="tile-num">${pad(t.seconds)}</div><div class="tile-label">Sec</div></div>
+      </div>`;
+    msgEl.textContent = msgs[Math.floor(t.days / 7) % msgs.length];
+  }
+  render();
+  setInterval(render, 1000);
+
+  /* ── Purchased tracking (family, no gate) ── */
+  const PURCH_KEY = 'xmas_purchased_v1';
+  let purchased = {};
+  try { purchased = JSON.parse(localStorage.getItem(PURCH_KEY) || '{}'); } catch(e) {}
+
+  function savePurchased() {
+    try { localStorage.setItem(PURCH_KEY, JSON.stringify(purchased)); } catch(e) {}
+  }
+
+  function applyPurchased() {
+    document.querySelectorAll('.wish-item').forEach(item => {
+      const i = item.dataset.i;
+      const who = purchased[i];
+      item.classList.toggle('purchased', !!who);
+      const whoSpan = item.querySelector('.purch-badge .who');
+      if (whoSpan) whoSpan.textContent = who || '';
+    });
+  }
+
+  document.getElementById('wishItems').addEventListener('click', e => {
+    const item = e.target.closest('.wish-item');
+    if (!item) return;
+    const i = item.dataset.i;
+
+    // Undo purchased
+    if (e.target.closest('.purch-badge')) {
+      purchased[i] = '';
+      savePurchased();
+      applyPurchased();
+      return;
+    }
+
+    // Open identifier popup
+    if (e.target.closest('.purch-btn')) {
+      // Close all other popups first
+      document.querySelectorAll('.id-popup.open').forEach(p => p.classList.remove('open'));
+      const popup = item.querySelector('.id-popup');
+      popup.classList.add('open');
+      popup.querySelector('input').focus();
+      return;
+    }
+
+    // Confirm identifier
+    if (e.target.closest('.popup-row button')) {
+      const popup = item.querySelector('.id-popup');
+      const val = popup.querySelector('input').value.trim();
+      if (!val) return;
+      purchased[i] = val;
+      savePurchased();
+      popup.classList.remove('open');
+      popup.querySelector('input').value = '';
+      applyPurchased();
+      return;
+    }
+  });
+
+  document.getElementById('wishItems').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('.id-popup input')) {
+      const popup = e.target.closest('.id-popup');
+      const val = e.target.value.trim();
+      if (!val) return;
+      const item = popup.closest('.wish-item');
+      purchased[item.dataset.i] = val;
+      savePurchased();
+      popup.classList.remove('open');
+      e.target.value = '';
+      applyPurchased();
+    }
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.id-popup.open').forEach(p => p.classList.remove('open'));
+    }
+  });
+
+  // Close popup when clicking outside
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.purch-area')) {
+      document.querySelectorAll('.id-popup.open').forEach(p => p.classList.remove('open'));
+    }
+  });
+
+  applyPurchased();
+
+  /* ── Wish List parent mode ── */
+  const CODE        = btoa('NORTHPOLE'); // stored encoded so it's not plain-text visible
+  const CHECK_KEY   = 'xmas_checks_v1';
+  const PARENT_KEY  = 'xmas_parent_v1';
+
+  const card      = document.getElementById('wishlistCard');
+  const lockBtn   = document.getElementById('lockBtn');
+  const codeWrap  = document.getElementById('codeWrap');
+  const codeInput = document.getElementById('codeInput');
+  const codeGo    = document.getElementById('codeGo');
+  const codeErr   = document.getElementById('codeErr');
+
+  let parentMode = false;
+  let checks = {};
+  try { parentMode = localStorage.getItem(PARENT_KEY) === '1'; } catch(e) {}
+  try { checks = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); } catch(e) {}
+
+  function applyState() {
+    card.classList.toggle('parent-mode', parentMode);
+    lockBtn.textContent = parentMode ? '🔓 Parent Mode' : '🔒 For Parents';
+    document.querySelectorAll('.wish-item').forEach(item => {
+      const i = item.dataset.i;
+      const cb = item.querySelector('.item-check');
+      if (cb) { cb.checked = !!checks[i]; }
+      item.classList.toggle('got', !!checks[i]);
+    });
+  }
+
+  // Checkboxes
+  document.getElementById('wishItems').addEventListener('change', e => {
+    if (!e.target.classList.contains('item-check')) return;
+    const item = e.target.closest('.wish-item');
+    const i = item.dataset.i;
+    checks[i] = e.target.checked;
+    item.classList.toggle('got', e.target.checked);
+    try { localStorage.setItem(CHECK_KEY, JSON.stringify(checks)); } catch(e2) {}
+  });
+
+  // Lock button
+  lockBtn.addEventListener('click', () => {
+    if (parentMode) {
+      parentMode = false;
+      try { localStorage.removeItem(PARENT_KEY); } catch(e) {}
+      codeWrap.classList.remove('open');
+      applyState();
+      return;
+    }
+    codeWrap.classList.toggle('open');
+    if (codeWrap.classList.contains('open')) codeInput.focus();
+  });
+
+  function tryCode() {
+    const val = btoa(codeInput.value.trim().toUpperCase());
+    if (val === CODE) {
+      parentMode = true;
+      try { localStorage.setItem(PARENT_KEY, '1'); } catch(e) {}
+      codeWrap.classList.remove('open');
+      codeInput.value = '';
+      codeErr.style.display = 'none';
+      applyState();
+    } else {
+      codeErr.style.display = 'block';
+      setTimeout(() => { codeErr.style.display = 'none'; }, 2000);
+      codeInput.select();
+    }
+  }
+
+  codeGo.addEventListener('click', tryCode);
+  codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryCode(); });
+
+  applyState();
+</script>
+
+</body>
+</html>
